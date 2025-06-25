@@ -2,13 +2,12 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"main/app/models"
+	// . "main/config"
 )
 
-
-var users = []User{
-	{ID: 1, Username: "john_doe", Email: "john@example.com"},
-	{ID: 2, Username: "jane_doe", Email: "jane@example.com"},
-	{ID: 3, Username: "alice", Email: "alice@example.com"},
+var users = []model.User{
+	{ID: 1, Username: "alice", Email: "d"},
 }
 
 func getUsers(c *gin.Context) {
