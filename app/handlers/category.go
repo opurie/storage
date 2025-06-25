@@ -16,9 +16,17 @@ func GetCategories(db *gorm.DB, w http.ResponseWriter, r *http.Request){
 	respondJson(w, http.StatusOK, categories)
 }
 
-func GetCategory(name string, db *gorm.DB) *model.Category {
+func GetCategoryByName(name string, db *gorm.DB) *model.Category {
 	category := model.Category{}
 	if err := db.First(&category, "name = ?", name).Error; err != nil {
+		return nil
+	}
+	return &category
+}
+
+func GetCategoryById(id string, db *gorm.DB) *model.Category {
+	category := model.Category{}
+	if err := db.First(&category, id).Error; err != nil {
 		return nil
 	}
 	return &category
@@ -28,7 +36,7 @@ func AddCategory(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 
-	if category := GetCategory(name, db); category != nil {
+	if category := GetCategoryByName(name, db); category != nil {
 		respondError(w, http.StatusConflict, "Category already exists")
 		return
 	}

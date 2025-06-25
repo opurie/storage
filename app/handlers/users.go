@@ -90,3 +90,11 @@ func GetUserOrNil(name string, db *gorm.DB) *model.User{
 	return &user
 
 }
+
+func GetUserById(id string, db *gorm.DB) *model.User {
+	user := model.User{}
+	if err := db.First(&user, id).Error; err != nil {
+		return nil
+	}
+	return &user
+}

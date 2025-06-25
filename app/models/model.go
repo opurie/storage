@@ -5,14 +5,14 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"id"`
+	ID       string    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Description string `json:"description"`
 }
 
 type Item struct {
-	ID int
+	ID string
 	Name string
 	Category Category
 	Location Location
@@ -22,17 +22,17 @@ type Item struct {
 }
 
 type Image struct {
-	ID int
-	ItemID int
+	ID string
+	ItemID string
 	Path string
 }
 
 type Category struct {
-	ID int
+	ID string
 	Name string
 }
 type Location struct {
-	ID int
+	ID string
 	Name string
 }
 
