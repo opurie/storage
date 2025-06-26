@@ -1,7 +1,7 @@
-package handlers
+package handler
 
 import (
-	"main/app/handlers"
+	"main/app/handler"
 	"main/app/models"
 	"net/http"
 	"strings"
@@ -24,9 +24,9 @@ func AddItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	category := handlers.GetCategoryById(category_id, db)
-	location := handlers.GetLocationById(location_id, db)
-	owner := handlers.GetUserOrNil(owner_id, db)
+	category := handler.GetCategoryById(category_id, db)
+	location := handler.GetLocationById(location_id, db)
+	owner := handler.GetUserById(owner_id, db)
 
 	if category == nil || location == nil || owner == nil {
 		respondError(w, http.StatusBadRequest, "Invalid category, location, or owner ID")
@@ -48,6 +48,15 @@ func AddItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	respondJson(w, http.StatusCreated, item)
+}
+
+func GetItems(db *gorm.DB, w http.ResponseWriter, r *http.Request){
+	var items []model.Item
+	if err := db.Find(&items).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Could not retrieve Items")
+		return
+	}
+	respondJson(w, http.StatusOK, items)
 }
 
 func GetItemOrNil(name string, db *gorm.DB) *model.Item {
