@@ -1,21 +1,43 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"main/app/models"
-	// . "main/config"
+	"database/sql"
+	"main/app"
+	"main/config"
+
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-var users = []model.User{
-	{ID: 1, Username: "alice", Email: "d"},
-}
-
-func getUsers(c *gin.Context) {
-	c.IndentedJSON(200, users)
-}
-
 func main() {
-	router := gin.Default()
-	router.GET("/users", getUsers)
-	router.Run("localhost:8080")
+	config := config.GetConfig()
+
+	// initDatabase(*config)
+	app := &app.App{}
+	app.Initialize(config)
+	app.Run(":3000")
+}
+
+func initDatabase(c config.Config) {
+	dbUri := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
+		c.DB.Username,
+		c.DB.Password,
+		c.DB.Host,
+		c.DB.Port,
+		c.DB.Name,
+		c.DB.Charset)
+
+	db, err := sql.Open(c.DB.Dialect, dbUri)
+	// db, err := sql.Open(c.DB.Dialect, dbUri)
+	if err != nil {
+		panic(fmt.Sprintf("Could not connect to database: %v", err))
+	}
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + c.DB.Name + " CHARACTER SET " + c.DB.Charset)
+
+	if err != nil {
+		panic(fmt.Sprintf("Could not create database: %v", err))
+	}
+
+	fmt.Println("Database initialized successfully")
 }

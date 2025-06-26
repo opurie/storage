@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"main/app/handler"
 	"main/app/models"
 	"net/http"
 	"strings"
@@ -23,10 +22,9 @@ func AddItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusConflict, "Item already exists")
 		return
 	}
-
-	category := handler.GetCategoryById(category_id, db)
-	location := handler.GetLocationById(location_id, db)
-	owner := handler.GetUserById(owner_id, db)
+	category := GetCategoryById(category_id, db)
+	location := GetLocationById(location_id, db)
+	owner := GetUserById(owner_id, db)
 
 	if category == nil || location == nil || owner == nil {
 		respondError(w, http.StatusBadRequest, "Invalid category, location, or owner ID")
@@ -39,7 +37,7 @@ func AddItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		Category: *category,
 		Location: *location,
 		Owner: *owner,
-		Tags: SplitTags(tags),
+		Tags: tags,
 	}
 	if err := db.Save(&item).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Could not save item")
@@ -57,6 +55,42 @@ func GetItems(db *gorm.DB, w http.ResponseWriter, r *http.Request){
 		return
 	}
 	respondJson(w, http.StatusOK, items)
+}
+
+func GetItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "Item ID is required")
+		return
+	}
+	
+	item := GetItemById(id, db)
+	if item == nil {
+		respondError(w, http.StatusNotFound, "Item not found")
+		return
+	}
+	respondJson(w, http.StatusOK, item)
+}
+
+func DeleteItem(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		respondError(w, http.StatusBadRequest, "Item ID is required")
+		return
+	}
+
+	item := GetItemById(id, db)
+	if item == nil {
+		respondError(w, http.StatusNotFound, "Item not found")
+		return
+	}
+
+	if err := db.Delete(&item).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Could not delete item")
+		return
+	}
+
+	respondJson(w, http.StatusOK, map[string]string{"message": "Item deleted successfully"})
 }
 
 func GetItemOrNil(name string, db *gorm.DB) *model.Item {

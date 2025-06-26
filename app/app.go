@@ -1,6 +1,5 @@
 package app
 
-
 import (
 	"fmt"
 	"log"
@@ -9,9 +8,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 
-	"main/app/models"
-	"main/config"
 	"main/app/handler"
+	model "main/app/models"
+	"main/config"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type App struct {
@@ -34,13 +35,34 @@ func (a *App) Initialize(c *config.Config) {
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
 	a.setRouters()
+
+	log.Println("App initialized successfully")
 }
 
-func (a *App) setRouters(){
+func (a *App) setRouters() {
 	// Items
 	a.Get("/items", a.handleRequest(handler.GetItems))
 	a.Get("/items/{id}", a.handleRequest(handler.GetItem))
+	a.Put("/items/{name}/{owner_id}/{category_id}/{location_id}/{tags}", a.handleRequest(handler.AddItem))
+	a.Delete("/items/{id}", a.handleRequest(handler.DeleteItem))
 	// Users
+	a.Get("/users", a.handleRequest(handler.GetUsers))
+	a.Get("/users/{id}", a.handleRequest(handler.GetUser))
+	a.Put("/users/{username}/{email}", a.handleRequest(handler.AddUser))
+	a.Post("/users/{id}/{username}/{email}", a.handleRequest(handler.UpdateUser))
+	a.Delete("/users/{id}", a.handleRequest(handler.DeleteUser))
+	// Locations
+	a.Get("/locations", a.handleRequest(handler.GetLocations))
+	a.Get("/locations/{id}", a.handleRequest(handler.GetLocation))
+	a.Put("/locations/{name}", a.handleRequest(handler.AddLocation))
+	a.Delete("/locations/{id}", a.handleRequest(handler.DeleteLocation))
+	// Categories
+	a.Get("/categories", a.handleRequest(handler.GetCategories))
+	a.Get("/categories/{id}", a.handleRequest(handler.GetCategory))
+	a.Put("/categories/{name}", a.handleRequest(handler.AddCategory))
+	a.Delete("/categories/{id}", a.handleRequest(handler.DeleteCategory))
+	// Users
+	// Items
 	// Locations
 	// Categories
 }

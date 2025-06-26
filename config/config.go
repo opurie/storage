@@ -20,7 +20,7 @@ func GetConfig() *Config{
 			Dialect: "mysql",
 			Host: "127.0.0.1",
 			Port: 3306,
-			Username: "Opurie",
+			Username: "opurie",
 			Password: "opurie",
 			Name: "storage",
 			Charset: "utf8",
