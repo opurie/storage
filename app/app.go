@@ -34,9 +34,15 @@ func (a *App) Initialize(c *config.Config) {
 	}
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
+	a.InitServices()
 	a.setRouters()
 
 	log.Println("App initialized successfully")
+}
+
+func (a *App) InitServices() {
+	handler.InitServices(a.DB)
+	log.Println("Services initialized successfully")
 }
 
 func (a *App) setRouters() {
@@ -92,10 +98,10 @@ func (a *App) Run(host string) {
 	log.Fatal(http.ListenAndServe(host, a.Router))
 }
 
-type RequestHandlerFunction func(db *gorm.DB, w http.ResponseWriter, r *http.Request)
+type RequestHandlerFunction func(w http.ResponseWriter, r *http.Request)
 
 func (a *App) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		handler(a.DB, w, r)
+		handler(w, r)
 	}
 }

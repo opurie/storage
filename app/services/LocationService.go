@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+	"log"
 	model "main/app/models"
 
 	"github.com/jinzhu/gorm"
@@ -17,6 +19,7 @@ func NewLocationService(db *gorm.DB) *LocationService {
 func (s *LocationService) GetLocation(id int) (*model.Location, error) {
 	var location model.Location
 	if err := s.db.First(&location, id).Error; err != nil {
+		log.Printf("Error fetching location with ID %d: %v", id, err)
 		return nil, err
 	}
 	return &location, nil
@@ -30,11 +33,15 @@ func (s *LocationService) GetAllLocations() ([]model.Location, error) {
 	return locations, nil
 }
 
-func (s *LocationService) CreateLocation(location *model.Location) error {
-	if err := s.db.Save(location).Error; err != nil {
-		return err
+func (s *LocationService) CreateLocation(location *model.Location) (*model.Location, error) {
+	if location.Name == "" {
+		return nil, errors.New("location name cannot be empty")
 	}
-	return nil
+
+	if err := s.db.Save(location).Error; err != nil {
+		return nil, err
+	}
+	return location, nil
 }
 
 func (s *LocationService) UpdateLocation(location *model.Location) error {

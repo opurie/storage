@@ -12,7 +12,7 @@ import (
 
 func main() {
 	config := config.GetConfig()
-
+	
 	// initDatabase(*config)
 	app := &app.App{}
 	app.Initialize(config)

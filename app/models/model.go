@@ -11,20 +11,23 @@ type User struct {
 	Description string `json:"description"`
 }
 
-
 type Item struct {
 	gorm.Model
 	Name        string
-	Category    Category `gorm:"embedded`
-	Location    Location `gorm:"embedded"`
-	Owner       User     `gorm:"embedded"`
+	CategoryID  uint
+	Category    Category `gorm:"foreignKey:CategoryID"`
+	LocationID  uint
+	Location    Location `gorm:"foreignKey:LocationID"`
+	UserID      uint
+	User        User `gorm:"foreignKey:UserID"`
 	Description string
 	Tags        string
 }
 
 type Image struct {
 	gorm.Model
-	ItemID string
+
+	ItemID uint
 	Path   string
 }
 
@@ -38,11 +41,21 @@ type Location struct {
 }
 
 func DBMigrate(db *gorm.DB) *gorm.DB {
+	db.LogMode(true)
 	db.AutoMigrate(&User{})
-	db.AutoMigrate(&Item{})
 	db.AutoMigrate(&Category{})
 	db.AutoMigrate(&Location{})
-	db.AutoMigrate(&Image{})
+	db.AutoMigrate(&Item{})
+	// db.AutoMigrate(&Image{})
+
+	db.Model(&Item{}).AddForeignKey(
+		"category_id", // kolumna w Item
+		"categories(id)", // tabela i kolumna docelowa
+		"RESTRICT",  // ON DELETE
+		"RESTRICT",  // ON UPDATE
+	)
+	db.Model(&Item{}).AddForeignKey("location_id", "locations(id)", "RESTRICT", "RESTRICT")
+	db.Model(&Item{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
 
 	return db
 }
